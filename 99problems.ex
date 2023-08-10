@@ -71,13 +71,25 @@ defmodule Problems do
       [] -> []
       [x | tail] -> case tail do
         [] -> [x]
-        [y | tail] -> if x == y do [x] ++ compress(tail) end
+        [y | _] -> if x != y do [x] ++ compress(tail) else compress(tail) end
       end
     end
   end
 
   @spec pack(list()) :: list()
   def pack(lst) do
-    # TODO
+    aux = fn (c, lst, aux) ->
+      case {c, lst} do
+        {[], []} -> []
+        {c, []} -> c
+        {[], [h | t]} -> aux.([[h]], t, aux)
+        {[[hc | tc] | tl], [h | t]} -> if hc == h do
+          aux.([[h | [hc | tc]] | tl], t, aux)
+          else aux.([[h] | [[hc | tc] | tl]], t, aux)
+        end
+      end
+    end
+    Problems.rev(aux.([], lst, aux))
   end
+
 end
