@@ -4,6 +4,8 @@ defmodule Problems do
 
   @type node_t :: {:one, any()} | {:many, [node_t()]}
 
+  # Solutions
+
   @spec last(list()) :: any()
   def last(l) do
    case l do
@@ -86,6 +88,22 @@ defmodule Problems do
         {[hc | tc], [h | t]} -> if List.first(hc) == h do
           aux.([[h | hc] | tc], t, aux)
           else aux.([[h] | [hc | tc]], t, aux)
+        end
+      end
+    end
+    Problems.rev(aux.([], lst, aux))
+  end
+
+  @spec encode(list()) :: list()
+  def encode(lst) do
+    aux = fn (c, lst, aux) ->
+      case {c, lst} do
+        {[], []} -> []
+        {c, []} -> c
+        {[], [h | t]} -> aux.([{1, h}], t, aux)
+        {[{n, ch} | tc], [h | t]} -> if ch == h do
+          aux.([{n+1, ch} | tc], t, aux)
+          else aux.([{1, h} | [{n, ch} | tc]], t, aux)
         end
       end
     end
