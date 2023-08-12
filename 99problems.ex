@@ -114,6 +114,7 @@ defmodule Problems do
 
   @spec m_encode(list()) :: [rle()]
   def m_encode(lst) do
+    # Worse performance but redable code
     Problems.encode(lst)
     |> Enum.map(fn {n, c} ->
       if n == 1 do {:one, c} else {:many, {n, c}} end
