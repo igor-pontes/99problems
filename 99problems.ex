@@ -121,4 +121,24 @@ defmodule Problems do
     end)
   end
 
+  @spec m_encode2(list()) :: [rle()]
+  def m_encode2(lst) do
+    aux = fn (c, lst, aux) ->
+      case {c, lst} do
+        {[], []} -> []
+        {c, []} -> c
+        {[], [h | t]} -> aux.([{:one, h}], t, aux)
+        {[{:one, ch} | tc], [h | t]} -> if ch == h do
+          aux.([{:many, {2, ch}} | tc], t, aux)
+          else aux.([{:one, h} | [{:one, ch} | tc]], t, aux)
+        end
+        {[{:many, {n, ch}} | tc], [h | t]} -> if ch == h do
+          aux.([{:many, {n+1, ch}} | tc], t, aux)
+          else aux.([{:one, h} | [{:many, {n, ch}} | tc]], t, aux)
+        end
+      end
+    end
+    Problems.rev(aux.([], lst, aux))
+  end
+
 end
