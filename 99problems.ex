@@ -3,6 +3,7 @@ defmodule Problems do
   # Types
 
   @type node_t :: {:one, any()} | {:many, [node_t()]}
+  @type rle :: {:one, any()} | {:many, {integer(), any()}}
 
   # Solutions
 
@@ -94,7 +95,8 @@ defmodule Problems do
     Problems.rev(aux.([], lst, aux))
   end
 
-  @spec encode(list()) :: list()
+  # Maybe use Maps here? nah.. stick to tuples...
+  @spec encode(list()) :: list({integer(), any()})
   def encode(lst) do
     aux = fn (c, lst, aux) ->
       case {c, lst} do
@@ -108,6 +110,14 @@ defmodule Problems do
       end
     end
     Problems.rev(aux.([], lst, aux))
+  end
+
+  @spec m_encode(list()) :: [rle()]
+  def m_encode(lst) do
+    Problems.encode(lst)
+    |> Enum.map(fn {n, c} ->
+      if n == 1 do {:one, c} else {:many, {n, c}} end
+    end)
   end
 
 end
