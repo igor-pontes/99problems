@@ -7,6 +7,8 @@ defmodule Problems do
 
   # Solutions
 
+  # Lists
+
   @spec last(list()) :: any()
   def last(l) do
    case l do
@@ -153,6 +155,124 @@ defmodule Problems do
     Problems.rev(aux.([], lst, aux))
   end
 
+  @spec duplicate(list()) :: list()
+  def duplicate(lst) do
+    case lst do
+      [] -> []
+      [h | t] -> [h, h] ++ duplicate(t)
+    end
+  end
 
+  # can do better
+  @spec replicate(list(), integer()) :: list()
+  def replicate(lst, n) do
+    aux = fn (ch, n, aux) ->
+      if n == 0 do [] else [ch] ++ aux.(ch, n-1, aux) end
+    end
+    case lst do
+      [] -> []
+      [h | t] -> aux.(h, n, aux) ++ replicate(t, n)
+    end
+  end
+
+  @spec drop(list(), integer()) :: list()
+  def drop(lst, n) do
+    aux = fn (lst, c, aux) -> case lst do
+        [] -> []
+        [h | t] -> if c == 1 do t else [h] ++ aux.(t, c-1, aux) end
+      end
+    end
+    aux.(lst, n, aux)
+  end
+
+  @spec split(list(), integer()) :: {list(), list()}
+  def split(lst, n) do
+    aux = fn (acc, lst, n, aux) -> case lst do
+        [] -> { Problems.rev(acc), [] }
+        [h | t] -> if n >= 2 do aux.([h | acc], t, n-1, aux) else { Problems.rev([h | acc]), t }
+        end
+      end
+    end
+    aux.([], lst, n, aux)
+  end
+
+  @spec slice(list(), integer(), integer()) :: list()
+  def slice(lst, i, k) do
+    case lst do
+      [] -> []
+      [h | t] -> if i == 0 and k >= 0 do [h | slice(t, 0, k-1)] else if k < 0 do [] else slice(t, i-1, k-1) end
+      end
+    end
+  end
+
+  @spec rotate(list(), integer()) :: list()
+  def rotate(lst, n) do
+    aux = fn (acc, lst, n, aux) -> case lst do
+        [] -> []
+        [h | t] -> if n == 1 do t ++ Problems.rev([h | acc]) else aux.([h | acc], t, n-1, aux) end
+      end
+    end
+    aux.([], lst, n, aux)
+  end
+
+  @spec remove_at(integer(), list()) :: list()
+  def remove_at(n, lst) do
+    case lst do
+      [] -> []
+      [h | t] -> if n == 0 do t else [h | remove_at(n-1, t)] end
+    end
+  end
+
+  @spec insert_at(any(), integer(), list()) :: list()
+  def insert_at(s, n, lst) do
+    case lst do
+      [] -> []
+      [h | t] -> if n == 0 do [s | [h | t]] else [h | insert_at(s, n-1, t)] end
+    end
+  end
+
+  # Not using reverse.
+  @spec range(integer(), integer()) :: list()
+  def range(i, k) do
+    aux = fn (i, k, f, aux) ->
+      if k == i do [i] else [i | aux.(f.(i), k, f, aux)] end
+    end
+    if k > i do aux.(i, k, &(&1+1), aux) else aux.(i, k, &(&1-1), aux) end
+  end
+
+  @spec rand_select(list(), integer()) :: list()
+  def rand_select(i, k) do
+    #TODO
+  end
+
+  @spec lotto_select(integer(), integer()) :: list()
+  def lotto_select(i, k) do
+    #TODO
+  end
+
+  @spec permutation(list()) :: list()
+  def permuation(lst) do
+    #TODO
+  end
+
+  @spec extract(integer(), list()) :: list()
+  def extract(lst) do
+    #TODO
+  end
+
+  @spec group(list(), list()) :: list()
+  def group(lst) do
+    #TODO
+  end
+
+  @spec length_sort(list()) :: list()
+  def length_sort(lst) do
+    #TODO
+  end
+
+  @spec frequency_sort(list()) :: list()
+  def frequency_sort(lst) do
+    #TODO
+  end
 
 end
