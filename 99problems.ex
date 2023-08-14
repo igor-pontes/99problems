@@ -95,7 +95,6 @@ defmodule Problems do
     Problems.rev(aux.([], lst, aux))
   end
 
-  # Maybe use Maps here? nah.. stick to tuples...
   @spec encode(list()) :: list({integer(), any()})
   def encode(lst) do
     aux = fn (c, lst, aux) ->
@@ -123,22 +122,37 @@ defmodule Problems do
 
   @spec m_encode2(list()) :: [rle()]
   def m_encode2(lst) do
-    aux = fn (c, lst, aux) ->
-      case {c, lst} do
-        {[], []} -> []
-        {c, []} -> c
-        {[], [h | t]} -> aux.([{:one, h}], t, aux)
-        {[{:one, ch} | tc], [h | t]} -> if ch == h do
-          aux.([{:many, {2, ch}} | tc], t, aux)
-          else aux.([{:one, h} | [{:one, ch} | tc]], t, aux)
+    counter = fn (count, ch) ->
+      if count == 0 do {:one, ch} else {:many, {count + 1, ch}} end
+    end
+    aux = fn (clst, count, lst, aux, counter) ->
+      case lst do
+        [] -> []
+        [x] -> [counter.(count, x) | clst]
+        [x | t] -> if x == List.first(t) do
+          aux.(clst, count + 1, t, aux, counter)
+          else aux.([counter.(count, x) | clst], 0, t, aux, counter)
         end
-        {[{:many, {n, ch}} | tc], [h | t]} -> if ch == h do
-          aux.([{:many, {n+1, ch}} | tc], t, aux)
-          else aux.([{:one, h} | [{:many, {n, ch}} | tc]], t, aux)
+      end
+    end
+    Problems.rev(aux.([], 0, lst, aux, counter))
+  end
+
+  @spec decode([rle()]) :: list()
+  def decode(lst) do
+    aux = fn (c, lst, aux) ->
+      case lst do
+        [] -> c
+        [{:one, ch} | tail] -> aux.([ch | c], tail, aux)
+        [{:many, {n, ch}} | tail] -> if n == 2 do
+          aux.([ch | c], [{:one, ch} | tail], aux)
+          else aux.([ch | c], [{:many, {n-1, ch}} | tail], aux)
         end
       end
     end
     Problems.rev(aux.([], lst, aux))
   end
+
+
 
 end
