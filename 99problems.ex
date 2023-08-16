@@ -255,14 +255,34 @@ defmodule Problems do
     aux.({[], lst}, length(lst), i, aux)
   end
 
+  # Basically just a "rand_select".
+  # I copied it to avoid calling "length()", which is not O(1).
   @spec lotto_select(integer(), integer()) :: list()
   def lotto_select(i, k) do
-    #TODO
+    pick = fn ({acc, lst}, temp, k, pick) ->
+      case lst do
+        [] -> {acc, lst}
+        [h | t] -> if k == 0 do {[h | acc], temp ++ t} else pick.({acc, t}, [h | temp], k-1, pick) end
+      end
+    end
+    aux = fn (t, len, i, aux) ->
+      if i == 0 do elem(t, 0) else aux.(pick.(t, [], :rand.uniform(len)-1, pick), len-1, i-1, aux) end
+    end
+    aux.({[], range(1, k)}, k, i, aux)
   end
 
   @spec permutation(list()) :: list()
   def permutation(lst) do
-    #TODO
+    pick = fn ({acc, lst}, temp, k, pick) ->
+      case lst do
+        [] -> {acc, lst}
+        [h | t] -> if k == 0 do {[h | acc], temp ++ t} else pick.({acc, t}, [h | temp], k-1, pick) end
+      end
+    end
+    aux = fn (t, len, aux) ->
+      if len == 0 do elem(t, 0) else aux.(pick.(t, [], :rand.uniform(len)-1, pick), len-1, aux) end
+    end
+    aux.({[], lst}, length(lst), aux)
   end
 
   @spec extract(integer(), list()) :: list()
