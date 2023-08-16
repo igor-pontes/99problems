@@ -234,15 +234,25 @@ defmodule Problems do
   # Not using reverse.
   @spec range(integer(), integer()) :: list()
   def range(i, k) do
-    aux = fn (i, k, f, aux) ->
-      if k == i do [i] else [i | aux.(f.(i), k, f, aux)] end
+    aux = fn (i, f, aux) ->
+      if k == i do [i] else [i | aux.(f.(i), f, aux)] end
     end
-    if k > i do aux.(i, k, &(&1+1), aux) else aux.(i, k, &(&1-1), aux) end
+    if k > i do aux.(i, &(&1+1), aux) else aux.(i, &(&1-1), aux) end
   end
 
+  # how to avoid "++" operator here?
   @spec rand_select(list(), integer()) :: list()
-  def rand_select(i, k) do
-    #TODO
+  def rand_select(lst, i) do
+    pick = fn ({acc, lst}, temp, k, pick) ->
+      case lst do
+        [] -> {acc, lst}
+        [h | t] -> if k == 0 do {[h | acc], temp ++ t} else pick.({acc, t}, [h | temp], k-1, pick) end
+      end
+    end
+    aux = fn (t, len, i, aux) ->
+      if i == 0 do elem(t, 0) else aux.(pick.(t, [], :rand.uniform(len)-1, pick), len-1, i-1, aux) end
+    end
+    aux.({[], lst}, length(lst), i, aux)
   end
 
   @spec lotto_select(integer(), integer()) :: list()
@@ -251,17 +261,17 @@ defmodule Problems do
   end
 
   @spec permutation(list()) :: list()
-  def permuation(lst) do
+  def permutation(lst) do
     #TODO
   end
 
   @spec extract(integer(), list()) :: list()
-  def extract(lst) do
+  def extract(i, lst) do
     #TODO
   end
 
   @spec group(list(), list()) :: list()
-  def group(lst) do
+  def group(l1, l2) do
     #TODO
   end
 
