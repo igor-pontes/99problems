@@ -285,9 +285,42 @@ defmodule Problems do
     aux.({[], lst}, length(lst), aux)
   end
 
+  # can't believe it is this simple...
   @spec extract(integer(), list()) :: list()
   def extract(i, lst) do
-    #TODO
+    """
+    - extract(2, ["a", "b", "c", "d"])
+    - ["a" | ["b", "c", "d"]] ->
+        with_h = Enum.map(extract(2-1, ["b", "c", "d"]), fn l -> ["a" | l] end) => Enum.map(["b", "c", "d"] fn l -> ["a" | l])
+          - extract(1, ["b", "c", "d"])
+          - ["b" | ["c", "d"]] ->
+              with_h = Enum.map(extract(1-1, ["c", "d"]), fn l -> ["b" | l] end)
+                - extract(0, ["c", "d"]) = [[]]
+              without_h = extract(1, ["c", "d"])
+                - extract(1, ["c", "d"])
+                - ["c" | ["d"]] ->
+                    with_h = Enum.map(extract(1-1, ["d"]), fn l -> ["c" | l] end)
+                      - extract(0, ["d"]) = [[]]
+                    without_h = extract(1, ["d"])
+                      - extract(1, ["d"])
+                      - ["d"] ->
+                          with_h = Enum.map(extract(1-1, []), fn l -> ["d" | l] end) => ["d" | [[]]]
+                          without_h = extract(1, []) => []
+                          ["d"] ++ []
+                    ["c"] ++ ["d"]
+              ["b"] ++ ["c", "d"]
+        [["a", "b"], ["a", "c"], ["a", "d"]] ++ extract(2, ["b", "c", "d"])
+    """
+    if i <= 0 do [[]]
+    else
+      case lst do
+        [] -> []
+        [h | t] ->
+          with_h = Enum.map(extract(i-1, t), fn l -> [h | l] end)
+          without_h = extract(i, t)
+          with_h ++ without_h
+      end
+    end
   end
 
   @spec group(list(), list()) :: list()
