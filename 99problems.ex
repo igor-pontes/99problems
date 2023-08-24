@@ -302,17 +302,12 @@ defmodule Problems do
   @spec group(list(), list()) :: list()
   def group(lst, grps) do
     aux = fn (i, lst, aux) ->
-      if i == 0 do [{[[]], lst}] else
+      if i == 0 do [{[], lst}] else
         case lst do
           [] -> []
           [h | t] ->
-            with_h = case aux.(i-1, t, aux) do
-              [{[[]], lst}] -> [{[h], lst}]
-              arr -> Enum.map(arr, fn {arr, rem} -> {[h | arr], rem} end)
-            end
-            without_h = case aux.(i, t, aux) do
-              arr -> Enum.map(arr, fn {arr, rem} -> {arr, [h | rem]} end)
-            end
+            with_h = Enum.map(aux.(i-1, t, aux), fn {arr, rem} -> {[h | arr], rem} end)
+            without_h = Enum.map(aux.(i, t, aux), fn {arr, rem} -> {arr, [h | rem]} end)
             with_h ++ without_h
         end
       end
@@ -322,10 +317,9 @@ defmodule Problems do
         [] -> acc
         [h | t] -> case acc do
           [{lst, []}] -> iter.(Enum.map(aux.(h, lst, aux), fn {arr, rem} -> {[arr], rem} end), t, iter)
-          arr -> acc = Enum.flat_map(Enum.map(acc, fn {arr, rem} ->
-              Enum.map(aux.(h, rem, aux), fn {h, t} -> {arr ++ [h], t} end)
-            end), &(&1))
-            iter.(acc, t, iter)
+          arr -> iter.(Enum.flat_map(Enum.map(acc, fn {arr, rem} ->
+              Enum.map(aux.(h, rem, aux), fn {h, t} -> {arr ++ [h], t} end) end), &(&1)),
+            t, iter)
         end
       end
     end
