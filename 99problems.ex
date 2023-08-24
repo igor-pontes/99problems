@@ -288,31 +288,7 @@ defmodule Problems do
   # can't believe it is this simple...
   @spec extract(integer(), list()) :: list()
   def extract(i, lst) do
-    """
-    - extract(2, ["a", "b", "c", "d"])
-    - ["a" | ["b", "c", "d"]] ->
-        with_h = Enum.map(extract(2-1, ["b", "c", "d"]), fn l -> ["a" | l] end) => Enum.map(["b", "c", "d"] fn l -> ["a" | l])
-          - extract(1, ["b", "c", "d"])
-          - ["b" | ["c", "d"]] ->
-              with_h = Enum.map(extract(1-1, ["c", "d"]), fn l -> ["b" | l] end)
-                - extract(0, ["c", "d"]) = [[]]
-              without_h = extract(1, ["c", "d"])
-                - extract(1, ["c", "d"])
-                - ["c" | ["d"]] ->
-                    with_h = Enum.map(extract(1-1, ["d"]), fn l -> ["c" | l] end)
-                      - extract(0, ["d"]) = [[]]
-                    without_h = extract(1, ["d"])
-                      - extract(1, ["d"])
-                      - ["d"] ->
-                          with_h = Enum.map(extract(1-1, []), fn l -> ["d" | l] end) => ["d" | [[]]]
-                          without_h = extract(1, []) => []
-                          ["d"] ++ []
-                    ["c"] ++ ["d"]
-              ["b"] ++ ["c", "d"]
-        [["a", "b"], ["a", "c"], ["a", "d"]] ++ extract(2, ["b", "c", "d"])
-    """
-    if i <= 0 do [[]]
-    else
+    if i == 0 do [[]] else
       case lst do
         [] -> []
         [h | t] ->
@@ -324,8 +300,36 @@ defmodule Problems do
   end
 
   @spec group(list(), list()) :: list()
-  def group(l1, l2) do
-    #TODO
+  def group(lst, grps) do
+    aux = fn (i, lst, aux) ->
+      if i == 0 do [{[[]], lst}] else
+        case lst do
+          [] -> []
+          [h | t] ->
+            with_h = case aux.(i-1, t, aux) do
+              [{[[]], lst}] -> [{[h], lst}]
+              arr -> Enum.map(arr, fn {arr, rem} -> {[h | arr], rem} end)
+            end
+            without_h = case aux.(i, t, aux) do
+              arr -> Enum.map(arr, fn {arr, rem} -> {arr, [h | rem]} end)
+            end
+            with_h ++ without_h
+        end
+      end
+    end
+    iter = fn (acc, grps, iter) ->
+      case grps do
+        [] -> acc
+        [h | t] -> case acc do
+          [{lst, []}] -> iter.(Enum.map(aux.(h, lst, aux), fn {arr, rem} -> {[arr], rem} end), t, iter)
+          arr -> acc = Enum.flat_map(Enum.map(acc, fn {arr, rem} ->
+              Enum.map(aux.(h, rem, aux), fn {h, t} -> {arr ++ [h], t} end)
+            end), &(&1))
+            iter.(acc, t, iter)
+        end
+      end
+    end
+    Enum.map(iter.([{lst, []}], grps, iter), fn {arr, _} -> arr end)
   end
 
   @spec length_sort(list()) :: list()
