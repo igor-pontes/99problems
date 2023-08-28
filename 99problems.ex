@@ -328,12 +328,29 @@ defmodule Problems do
 
   @spec length_sort(list()) :: list()
   def length_sort(lst) do
-    #TODO
+    fst = fn e -> elem(e, 0) end
+    # If "e" greater than h, it could be greater than other elements of "lst"
+    ins = fn (e, lst, ins) ->
+      case lst do
+        [] -> [e]
+        [h | t] -> if fst.(e) < fst.(h) do [e | [h | t]] else [h | ins.(e, t, ins)] end
+      end
+    end
+    iter = fn (lst, iter) ->
+      case lst do
+        [] -> []
+        [h | t] -> ins.(h, iter.(t, iter), ins)
+      end
+    end
+    lst = Enum.map(lst, fn e -> {len(e), e} end)
+    Enum.map(iter.(lst, iter), fn e -> elem(e, 1) end)
   end
 
   @spec frequency_sort(list()) :: list()
   def frequency_sort(lst) do
-    #TODO
+    Enum.group_by(lst, &Kernel.length/1)
+    |> Enum.map(fn e -> elem(e,1) end)
+    |> Problems.length_sort()
   end
 
 end
