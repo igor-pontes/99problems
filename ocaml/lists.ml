@@ -187,7 +187,6 @@ let rec group l n =
     | h :: t -> 
         let (a, b) = split acc h in 
         List.flatten (List.map (fun l -> List.flatten (List.map (fun l -> [a @ l]) (groups l t))) (aux [] 1 b))
-        (* (a, List.map (fun l -> let c, d = split l 1 in (c, List.map (fun l -> let e, f = split l 1 in (e, (aux [] 1 f)) ) (aux [] 1 d))) (aux [] 1 b)) *)
   in
   let rec divide l = function
     | [] -> []
@@ -195,4 +194,5 @@ let rec group l n =
   in match n with
     | [] -> []
     | h :: t -> List.flatten ((List.map (fun l -> List.map (fun l -> divide l n) (groups l n))) (aux [] h l));;
+
 
