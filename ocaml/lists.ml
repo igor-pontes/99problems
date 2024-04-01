@@ -173,26 +173,22 @@ let rec extract n l =
     | [] -> []
     | h :: t -> List.map (fun l -> h :: l) (extract (n-1) t) @ extract n t;;
 
+(* Spent a lot of time thinking... got close but couldn't think of an answer so I cheated (kinda. spent a lot of time trying to understand the oficial answer) *)
 let rec group l n = 
-  let rec aux acc n l = 
-    if n = 0 then [acc @ l]
-    else match l with
-      | [] -> []
-      | h :: t -> List.map (fun l -> h :: l) (aux acc (n-1) t) @ aux (h::acc) n t
+  let initial = List.map (fun n -> n, []) n in
+  let prepend p list = 
+    let temp l acc = l :: acc in
+    let rec aux temp acc = function
+      | [] -> temp [] acc
+      | (n, l) as h :: t -> 
+          let acc = 
+            if n > 0 then temp ((n-1, p :: l) :: t) acc
+            else acc in aux (fun l acc -> temp (h :: l) acc ) acc t
+    in aux temp [] list
   in
-  let rec groups acc n = 
-    match n with
-    | [] -> []
-    | h :: [] -> let (a, b) = split acc h in [a]
-    | h :: t -> 
-        let (a, b) = split acc h in 
-        List.flatten (List.map (fun l -> List.flatten (List.map (fun l -> [a @ l]) (groups l t))) (aux [] 1 b))
-  in
-  let rec divide l = function
-    | [] -> []
-    | h :: t -> let (a, b) = split l h in a :: divide b t
-  in match n with
-    | [] -> []
-    | h :: t -> List.flatten ((List.map (fun l -> List.map (fun l -> divide l n) (groups l n))) (aux [] h l));;
-
+  let rec aux = function
+    | [] -> [initial]
+    | h :: t -> List.concat (List.map (prepend h) (aux t))
+  in let filtered = List.filter (List.for_all (fun (x, _) -> x = 0)) (aux l) in
+  List.map (List.map snd) filtered;;
 
