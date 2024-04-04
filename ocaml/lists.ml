@@ -192,3 +192,32 @@ let rec group l n =
   in let filtered = List.filter (List.for_all (fun (x, _) -> x = 0)) (aux l) in
   List.map (List.map snd) filtered;;
 
+(* My first implementation required adittional steps *)
+let length_sort l = 
+  let initial = List.map (fun l -> List.length l, l) l in
+  let rec insert n = function
+    | [] -> [n]
+    | h :: t -> if compare (fst n) (fst h) <= 0 then n :: h :: t else h :: insert n t
+  in
+  let rec cmp = function
+    | [] -> []
+    | h :: t -> insert h (cmp t)
+  in List.map snd (cmp initial);;
+
+(* Frequency_sort implements my initial solution *)
+let frequency_sort lst = 
+  let rec cmp n acc = function
+    | [] -> []
+    | h :: t -> if fst n > fst h then h :: n :: acc @ t else cmp n (acc @ [h]) t
+  in
+  let rec aux = function
+    | [] -> []
+    | h :: t -> let l = cmp h [] t in if l = [] then h :: aux t else aux l
+  in
+  let rec freq n acc = function
+    | [] -> acc
+    | h :: t -> if List.length h = n then freq n (acc+1) t else freq n acc t
+  in
+  let initial = List.map (fun l -> freq (List.length l) 0 lst, l) lst in 
+  List.map snd (aux initial);;
+
