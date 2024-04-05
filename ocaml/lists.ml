@@ -48,7 +48,7 @@ let pack l =
 
 let encode l = 
   let rec temp (count, item) = function
-    | [] -> []
+    | [] -> [(count, item)]
     | h :: [] -> 
         if h <> item then (count, item) :: [(1, h)]
         else [(count+1, item)]
