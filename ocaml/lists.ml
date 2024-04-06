@@ -49,11 +49,8 @@ let pack l =
 let encode l = 
   let rec temp (count, item) = function
     | [] -> [(count, item)]
-    | h :: [] -> 
-        if h <> item then (count, item) :: [(1, h)]
-        else [(count+1, item)]
     | h :: t -> 
-        if h <> item then [(count, item)] @ temp (1, h) t 
+        if h <> item then (count, item) :: temp (1, h) t 
         else temp (count+1, item) t
   in match l with
     | [] -> []
@@ -82,14 +79,6 @@ let rec decode = function
   | Many (count,item) :: t -> 
       if count = 0 then decode t 
       else item :: decode (Many (count - 1, item) :: t);;
-
-let encode lst = 
-  let rle count x = if count = 0 then One x else Many (count + 1, x) in 
-  let rec aux count acc = function
-    | [] -> []
-    | a :: [] -> [rle count a]
-    | a :: (b :: _ as t) -> if a = b then aux (count + 1) acc t else aux 0 ((rle count a) :: acc) t
-  in aux 0 [] lst;; 
 
 let rec duplicate = function
   | [] -> [] 

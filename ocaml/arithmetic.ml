@@ -1,11 +1,9 @@
 let is_prime n = 
   let sqrt = int_of_float (sqrt ( float_of_int n )) in
   let rec aux n f = 
-    if n mod f = 0 then 
-      if n/f = 1 then false else aux (n/f) f 
-    else 
-      if f = sqrt+1 then true else aux n (f+1) in
-  n <> 1 && aux n 2;;
+    if n mod f = 0 then false
+    else if f = sqrt+1 then true else aux n (f+1) in
+  n <> 1 && aux n 2 || n = 2;;
 
 let gcd a b = 
   let rec aux n r =
@@ -34,11 +32,8 @@ let factors n =
 let encode l = 
   let rec temp (count, item) = function
     | [] -> [(count, item)]
-    | h :: [] -> 
-        if h <> item then (count, item) :: [(1, h)]
-        else [(count+1, item)]
     | h :: t -> 
-        if h <> item then [(count, item)] @ temp (1, h) t 
+        if h <> item then (count, item) :: temp (1, h) t 
         else temp (count+1, item) t
   in match l with
     | [] -> []
@@ -52,4 +47,36 @@ let phi_improved n =
   let rec aux = function
     | [] -> 1
     | (m, p) :: t -> ((p-1) * (p *** (m-1))) * aux t
-  in aux (encode (factors n));
+  in aux (encode (factors n));;
+
+let timeit f n = 
+  let start = Sys.time () in
+  let _ = f n in Sys.time () -. start;;
+
+let rec all_primes a b = 
+  if a = b then [] 
+  else if is_prime a then a :: all_primes (a + 1) b
+  else all_primes (a + 1) b;;
+
+let goldbach n = 
+  let rec compute a = function
+    | [] -> None
+    | h :: t -> if a + h = n then Some(a, h) else compute a t
+  in
+  let rec aux = function
+    | [] -> 0, 0
+    | h :: t -> 
+      match compute h t with
+        | Some (a, b) -> (a, b)
+        | None -> aux t
+  in aux (all_primes 2 n);;
+
+let rec goldbach_list a b = 
+  if a > b then []
+  else if a mod 2 = 0 then (a, goldbach a) :: goldbach_list (a+1) b
+  else goldbach_list (a+1) b;;
+
+let rec goldbach_limit a b c = 
+  let check (_, (a, b)) = a > c && b > c in
+  List.filter check (goldbach_list a b);;
+
